@@ -12,6 +12,13 @@ data = res.read()
 int_data = data.decode("utf-8")
 
 
+def uuid_handler(int_string):
+    """isolates the uuid from the rests of the string and tidy's its up"""
+    split = int_string.split(":")
+    uuid = split[-1].removeprefix('"')
+    return uuid
+
+
 def space_remover(list):
     """removes spaces left over in list's"""
     while '' in list:
@@ -20,78 +27,50 @@ def space_remover(list):
 
 
 def dictionary_generator(input_list):
+    """Generates the internal dictionary's"""
     dictionary = {}
     temp_list = []
-    for data in input_list:
-        if ":" in data:
-            temp_list = data.split(":")
+    for item in input_list:
+        if ":" in item:
+            temp_list = item.split(":")
             if temp_list[1].isdigit() or "." in temp_list[1]:
                 dictionary[temp_list[0]] = float(temp_list[1])
             else:
                 dictionary[temp_list[0]] = [str(temp_list[1])]
         else:
-            dictionary[temp_list[0]].append(data)
+            dictionary[temp_list[0]].append(item)
     return dictionary
 
 
-# converts data from string to list
-list_data = list(int_data.split('","'))
-list_data = list_data[1:]
-list_data = list_data[:-1]
-
-
 def int_processing(list):
-    # Removes "|" & ","from data
+    """Removes '|' & ',' from data"""
     list_rfp = []
     for data in list:
         if "|" in data:
             data = data.replace("|", " ")
-        if "," in data:
+        elif "," in data:
             data = data.replace(",", "")
         list_rfp.append(data)
     return list_rfp
 
 
+def dictionary_generator_handler(jeremy, final_dictionary={}, x=0):
+    """controls feeding data to dictionary_generator and adds the generated dictionary's to the final dictionary"""
+    keys = ["uuid", "kills", "death", "damage", "accuracy", "world", "movement", "inventory", "interactions"]
+    while x < (len(jeremy) - 1):
+        if x == 0:
+            uuid = uuid_handler(jeremy[0])
+            final_dictionary[keys[0]] = uuid
+        else:
+            temp_data = space_remover(jeremy[x].split(" "))
+            temp_data = dictionary_generator(temp_data[1:])
+            final_dictionary[keys[x]] = temp_data
+        x = x + 1
+    return final_dictionary
+
+
+# converts data from string to list
+list_data = list(int_data.split('","'))
+list_data = list_data[1:-1]
 list_rfp = int_processing(list_data)
-print(list_rfp)
-
-kills = list_rfp[1].split(" ")
-kills = space_remover(kills)
-kills = dictionary_generator(kills[1:])
-
-death = list_rfp[2].split(" ")
-death = space_remover(death)
-death = dictionary_generator(death[1:])
-
-damage = list_rfp[3].split(" ")
-damage = space_remover(damage)
-damage = dictionary_generator(damage[1:])
-
-Accuracy = list_rfp[4].split(" ")
-Accuracy = space_remover(Accuracy)
-Accuracy = dictionary_generator(Accuracy[1:])
-
-world = list_rfp[5].split(" ")
-world = space_remover(world)
-world = dictionary_generator(world[1:])
-
-movement = list_rfp[6].split(" ")
-movement = space_remover(movement)
-movement = dictionary_generator(movement[1:])
-
-inventory = list_rfp[7].split(" ")
-inventory = space_remover(inventory)
-inventory = dictionary_generator(inventory[1:])
-
-ineractions = list_rfp[8].split(" ")
-ineractions = space_remover(ineractions)
-ineractions = dictionary_generator(ineractions[1:])
-
-print(kills)
-print(death)
-print(damage)
-print(Accuracy)
-print(world)
-print(movement)
-print(inventory)
-print(ineractions)
+print(dictionary_generator_handler(list_rfp))

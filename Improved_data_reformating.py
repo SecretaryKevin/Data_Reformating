@@ -29,34 +29,36 @@ def key_stealer(list, temp_keys=["uuid"]):
     return temp_keys, uuid
 
 
-def internal_dictionary_generator(input_list, directory={}, temp_list={}):
-    input_list.remove('"{0}":"').format(keys)
-
-
-
-
-
+def internal_dictionary_generator(input_string, directory={}, temp_list={}):
+    input_list = input_string.split(":")
+    print(input_list)
+    directory = "test"
     return directory
 
 
-def outter_dictionary_generator(rtp_list, keys, uuid, directory={}, x=0):
-    if len(directory) == 0:
-        directory[keys[0]] = uuid
-    else:
-        for data in rtp_list:
-            x = x + 1
-            directory[keys[x]] = internal_dictionary_generator(data)
+def external_dictionary_generator(rtp_list, keys, uuid, directory={}, x=0):
+    while x < (len(rtp_list)):
+        if x == 0:
+            directory[keys[0]] = uuid
+        else:
+            temp_data = rtp_list[x]
+            location_num = temp_data.find('":"')
+            temp_data = internal_dictionary_generator(temp_data[(location_num + 4):])
+            directory[keys[x]] = temp_data
+        x = x + 1
     return directory
+
+
+
+
 
 
 int_data = int_data.replace("|", " ")
 int_data = int_data.replace(",", "")
 int_list = int_data.split('""')
 int_list = int_list[1:]
-print(int_list)
 global keys
 keys, uuid = key_stealer(int_list)
-final_dictionary = outter_dictionary_generator(int_list[], keys, uuid)
+final_dictionary = external_dictionary_generator(int_list, keys, uuid)
 print(final_dictionary)
-print(keys)
-print(uuid)
+
